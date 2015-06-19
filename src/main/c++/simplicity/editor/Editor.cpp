@@ -100,13 +100,22 @@ namespace simplicity
 				const KeyboardButtonEvent* event = static_cast<const KeyboardButtonEvent*>(message.body);
 				if (event->button == Keyboard::Button::GRAVE && event->buttonState == Button::State::UP)
 				{
+					WindowEngine* windowEngine = Simplicity::getEngine<WindowEngine>();
 					if (flying)
 					{
 						flying = false;
+						if (Simplicity::getScene()->capturesMouse())
+						{
+							windowEngine->captureMouse();
+						}
 					}
 					else
 					{
 						Simplicity::pause();
+						if (Simplicity::getScene()->capturesMouse())
+						{
+							windowEngine->releaseMouse();
+						}
 					}
 				}
 
