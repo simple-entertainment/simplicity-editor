@@ -50,11 +50,15 @@ namespace simplicity
 
 				int mouseNewY;
 
+				bool rotating;
+
 				float rotationX;
 
 				float rotationY;
 
 				bool onKeyboardButton(const Message& message);
+
+				bool onMouseButton(const Message& message);
 
 				bool onMouseMove(const Message& message);
 		};

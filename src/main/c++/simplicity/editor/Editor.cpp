@@ -19,6 +19,7 @@
 #include <simplicity/rendering/Camera.h>
 #include <simplicity/rendering/RenderingEngine.h>
 #include <simplicity/resources/Resources.h>
+#include <simplicity/scripting/ScriptingEngine.h>
 #include <simplicity/Simplicity.h>
 #include <simplicity/windowing/WindowEngine.h>
 
@@ -40,59 +41,45 @@ namespace simplicity
 	{
 		namespace Editor
 		{
-			void augmentSimplicity();
-			void fly();
+			void editOneFrame();
+			void enterEditMode();
+			void enterPlayMode();
+			void finishEditing();
 			bool onKeyboardButton(const Message& message);
+			void startEditing();
 
-			bool flying = false;
+			Entity* gameCamera = nullptr;
 			unique_ptr<Entity> godCamera(new Entity);
+			unique_ptr<Engine> scriptEngine = nullptr;
+			unique_ptr<Engine> scriptEngineEditMode = nullptr;
+			unique_ptr<Engine> uiEngine = nullptr;
+			unique_ptr<Entity> uiEntity(new Entity);
 
-			void augmentSimplicity(unique_ptr<Renderer> renderer)
+			void editOneFrame()
 			{
-				unique_ptr<Engine> uiEngine(new RocketEngine(move(renderer), Category::UNCATEGORIZED));
-				Simplicity::addEngine(move(uiEngine));
-
-				unique_ptr<Entity> header(new Entity);
-				Resource* headerResource = Resources::get("src/main/rml/header.rml", Category::UNCATEGORIZED);
-				unique_ptr<Component> headerUi(new RocketDocument(*headerResource));
-				header->addUniqueComponent(move(headerUi));
-				Resource* consoleFontResource = Resources::get("src/main/resources/fonts/Ubuntu-Regular.ttf",
-															   Category::UNCATEGORIZED);
-				unique_ptr<Component> headerFont(new RocketFontFace(*consoleFontResource));
-				header->addUniqueComponent(move(headerFont));
-				unique_ptr<Component> headerController(new HeaderController);
-				header->addUniqueComponent(move(headerController));
-				Simplicity::getScene()->addEntity(move(header));
-
-				Messages::registerRecipient(Subject::KEYBOARD_BUTTON, onKeyboardButton);
+				Simplicity::getEngine<WindowEngine>()->advance();
+				scriptEngineEditMode->advance();
+				Simplicity::getEngine<RenderingEngine>()->advance();
 			}
 
-			void fly()
+			void enterEditMode()
 			{
-				Entity* currentCamera = Simplicity::getEngine<RenderingEngine>()->getCamera();
-				Camera* currentCameraCamera = currentCamera->getComponent<Camera>();
-				Camera* godCameraCamera = godCamera->getComponent<Camera>();
+				Simplicity::pause();
+				Simplicity::finishPlayback();
+				startEditing();
+			}
 
-				godCameraCamera->setProjection(currentCameraCamera->getProjection());
-				godCameraCamera->setTransform(currentCameraCamera->getTransform());
-				godCamera->setTransform(currentCamera->getTransform());
+			void enterPlayMode()
+			{
+				finishEditing();
+				Simplicity::startPlayback();
+			}
 
-				Simplicity::getEngine<RenderingEngine>()->setCamera(godCamera.get());
+			void finishEditing()
+			{
+				scriptEngineEditMode->onPauseScene(*Simplicity::getScene());
 
-				godCamera->getComponent<GodCameraController>()->onResumeScene(*Simplicity::getScene(), *godCamera);
-
-				flying = true;
-				while (flying)
-				{
-					Simplicity::getEngine<WindowEngine>()->advance();
-					godCamera->getComponent<GodCameraController>()->execute(*godCamera);
-					Simplicity::getEngine<RenderingEngine>()->advance();
-				}
-
-				godCamera->getComponent<GodCameraController>()->onPauseScene(*Simplicity::getScene(), *godCamera);
-
-				// Revert to the camera being used by the game.
-				Simplicity::getEngine<RenderingEngine>()->setCamera(currentCamera);
+				Simplicity::getEngine<RenderingEngine>()->setCamera(gameCamera);
 			}
 
 			bool onKeyboardButton(const Message& message)
@@ -100,48 +87,101 @@ namespace simplicity
 				const KeyboardButtonEvent* event = static_cast<const KeyboardButtonEvent*>(message.body);
 				if (event->button == Keyboard::Button::GRAVE && event->buttonState == Button::State::UP)
 				{
-					WindowEngine* windowEngine = Simplicity::getEngine<WindowEngine>();
-					if (flying)
+					if (Simplicity::getState() == Simplicity::State::PLAYING)
 					{
-						flying = false;
-						if (Simplicity::getScene()->capturesMouse())
-						{
-							windowEngine->captureMouse();
-						}
+						enterEditMode();
 					}
 					else
 					{
-						Simplicity::pause();
-						if (Simplicity::getScene()->capturesMouse())
-						{
-							windowEngine->releaseMouse();
-						}
+						enterPlayMode();
 					}
 				}
 
 				return false;
 			}
 
-			void run(unique_ptr<Renderer> renderer)
+			void run()
 			{
-				augmentSimplicity(move(renderer));
+				// Play one frame so the initial scene displays correctly.
+				Simplicity::startPlayback();
+				Simplicity::playOneFrame();
 
-				while (true)
+				enterEditMode();
+
+				while (Simplicity::getState() != Simplicity::State::STOPPING)
 				{
-					Simplicity::play();
-					fly();
+					if (Simplicity::getState() == Simplicity::State::PLAYING)
+					{
+						Simplicity::playOneFrame();
+					}
+					else
+					{
+						editOneFrame();
+					}
+
+					scriptEngine->advance();
+					uiEngine->advance();
 				}
+
+				Simplicity::finishPlayback();
 			}
 
-			void setup()
+			void setup(unique_ptr<Renderer> renderer)
 			{
 				unique_ptr<CompositeEngine> compositeEngine(new TimedSerialCompositeEngine);
 				Simplicity::setCompositeEngine(move(compositeEngine));
 
+				scriptEngine = unique_ptr<Engine>(new ScriptingEngine);
+				scriptEngineEditMode = unique_ptr<Engine>(new ScriptingEngine);
+				uiEngine = unique_ptr<Engine>(new RocketEngine(move(renderer), Category::UNCATEGORIZED));
+
+				scriptEngine->onPlay();
+				scriptEngineEditMode->onPlay();
+				uiEngine->onPlay();
+
+				scriptEngine->onResumeScene(*Simplicity::getScene());
+				uiEngine->onResumeScene(*Simplicity::getScene());
+
+				Resource* headerResource = Resources::get("src/main/rml/header.rml", Category::UNCATEGORIZED);
+				unique_ptr<Component> headerUi(new RocketDocument(*headerResource));
+				uiEntity->addUniqueComponent(move(headerUi));
+				Resource* consoleFontResource = Resources::get("src/main/resources/fonts/Ubuntu-Regular.ttf",
+															   Category::UNCATEGORIZED);
+
+				unique_ptr<Component> headerFont(new RocketFontFace(*consoleFontResource));
+				uiEntity->addUniqueComponent(move(headerFont));
+
+				unique_ptr<Component> headerController(new HeaderController);
+				uiEntity->addUniqueComponent(move(headerController));
+
+				scriptEngine->onAddEntity(*uiEntity);
+				uiEngine->onAddEntity(*uiEntity);
+
 				unique_ptr<Component> godCameraCamera(new Camera);
 				godCamera->addUniqueComponent(move(godCameraCamera));
+
 				unique_ptr<Component> godCameraController(new GodCameraController);
 				godCamera->addUniqueComponent(move(godCameraController));
+
+				scriptEngineEditMode->onAddEntity(*godCamera);
+				uiEngine->onAddEntity(*godCamera);
+
+				Messages::registerRecipient(Subject::KEYBOARD_BUTTON, onKeyboardButton);
+			}
+
+			void startEditing()
+			{
+				gameCamera = Simplicity::getEngine<RenderingEngine>()->getCamera();
+				Camera* gameCameraCamera = gameCamera->getComponent<Camera>();
+				Camera* godCameraCamera = godCamera->getComponent<Camera>();
+
+				godCameraCamera->setProjection(gameCameraCamera->getProjection());
+				godCameraCamera->setTransform(gameCameraCamera->getTransform());
+				godCamera->setTransform(gameCamera->getTransform());
+
+				Simplicity::getEngine<RenderingEngine>()->setCamera(godCamera.get());
+
+				scriptEngineEditMode->onResumeScene(*Simplicity::getScene());
 			}
 		}
 	}

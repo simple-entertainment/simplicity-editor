@@ -26,9 +26,9 @@ namespace simplicity
 	{
 		namespace Editor
 		{
-			SIMPLE_API void run(std::unique_ptr<Renderer> renderer);
+			SIMPLE_API void run();
 
-			SIMPLE_API void setup();
+			SIMPLE_API void setup(std::unique_ptr<Renderer> renderer);
 		}
 	}
 }

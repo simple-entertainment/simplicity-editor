@@ -17,6 +17,7 @@
 #include <functional>
 
 #include <simplicity/input/KeyboardButtonEvent.h>
+#include <simplicity/input/MouseButtonEvent.h>
 #include <simplicity/input/MouseMoveEvent.h>
 #include <simplicity/math/MathFunctions.h>
 #include <simplicity/messaging/Messages.h>
@@ -37,6 +38,7 @@ namespace simplicity
 				mouseCurrentY(-1),
 				mouseNewX(-1),
 				mouseNewY(-1),
+				rotating(false),
 				rotationX(0.0f),
 				rotationY(0.0f)
 		{
@@ -96,16 +98,19 @@ namespace simplicity
 				entity.getTransform().setIdentity();
 				setPosition(entity.getTransform(), position);
 
-				rotationY += (mouseNewX - mouseCurrentX) * -0.01f;
-				rotationX += (mouseNewY - mouseCurrentY) * -0.01f;
+				if (rotating)
+				{
+					rotationY += (mouseNewX - mouseCurrentX) * -0.01f;
+					rotationX += (mouseNewY - mouseCurrentY) * -0.01f;
+				}
 
 				// Apply new rotation.
 				rotate(entity.getTransform(), rotationY, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 				rotate(entity.getTransform(), rotationX, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-
-				mouseCurrentX = mouseNewX;
-				mouseCurrentY = mouseNewY;
 			}
+
+			mouseCurrentX = mouseNewX;
+			mouseCurrentY = mouseNewY;
 		}
 
 		bool GodCameraController::onKeyboardButton(const Message& message)
@@ -116,15 +121,27 @@ namespace simplicity
 			return false;
 		}
 
+		bool GodCameraController::onMouseButton(const Message& message)
+		{
+			const MouseButtonEvent* event = static_cast<const MouseButtonEvent*>(message.body);
+			if (event->button == Mouse::Button::LEFT)
+			{
+				if (event->buttonState == Button::State::DOWN)
+				{
+					rotating = true;
+				}
+				else if (event->buttonState == Button::State::UP)
+				{
+					rotating = false;
+				}
+			}
+
+			return false;
+		}
+
 		bool GodCameraController::onMouseMove(const Message& message)
 		{
 			const MouseMoveEvent* event = static_cast<const MouseMoveEvent*>(message.body);
-
-			if (mouseCurrentX == -1)
-			{
-				mouseCurrentX = event->x;
-				mouseCurrentY = event->y;
-			}
 
 			mouseNewX = event->x;
 			mouseNewY = event->y;
@@ -145,6 +162,8 @@ namespace simplicity
 
 			Messages::registerRecipient(Subject::KEYBOARD_BUTTON, bind(&GodCameraController::onKeyboardButton, this,
 																	   placeholders::_1));
+			Messages::registerRecipient(Subject::MOUSE_BUTTON, bind(&GodCameraController::onMouseButton, this,
+																	placeholders::_1));
 			Messages::registerRecipient(Subject::MOUSE_MOVE, bind(&GodCameraController::onMouseMove, this,
 																  placeholders::_1));
 		}
@@ -153,6 +172,8 @@ namespace simplicity
 		{
 			Messages::deregisterRecipient(Subject::KEYBOARD_BUTTON, bind(&GodCameraController::onKeyboardButton, this,
 																		 placeholders::_1));
+			Messages::deregisterRecipient(Subject::MOUSE_BUTTON, bind(&GodCameraController::onMouseButton, this,
+																	  placeholders::_1));
 			Messages::deregisterRecipient(Subject::MOUSE_MOVE, bind(&GodCameraController::onMouseMove, this,
 																	placeholders::_1));
 		}
