@@ -36,43 +36,62 @@ namespace simplicity
 
 		void HeaderController::execute(Entity& entity)
 		{
-			unsigned int fps =
-					static_cast<TimedSerialCompositeEngine*>(Simplicity::getCompositeEngine())->getFramesPerSecond();
+			stringstream stream;
+			TimedSerialCompositeEngine* timedEngine =
+					static_cast<TimedSerialCompositeEngine*>(Simplicity::getCompositeEngine());
 
 			Element* fpsElement = headerUi->getDocument()->GetElementById("fps");
-
-			stringstream stream;
-			stream << fps;
+			stream << timedEngine->getFramesPerSecond();
 			dynamic_cast<ElementText*>(fpsElement->GetFirstChild())->SetText(stream.str().c_str());
 
-			/* Code that creates new elements
-			 *
-					Element* fpsDiv = Factory::InstanceElement(divs[0], "div", "div", XMLAttributes());
-					divs[0]->AppendChild(fpsDiv);
-					stream << "FPS: " << debugEngine->getFramesPerSecond();
-					fpsDiv->AppendChild(getDocument()->CreateTextNode(stream.str().c_str()));
+			Element* timingsElement = headerUi->getDocument()->GetElementById("timings");
+			while (timingsElement->GetNumChildren() > 0)
+			{
+				timingsElement->RemoveChild(timingsElement->GetChild(0));
+			}
 
-					Element* frameTimeDiv = Factory::InstanceElement(divs[0], "div", "div", XMLAttributes());
-					divs[0]->AppendChild(frameTimeDiv);
+			if (fpsElement->IsClassSet("selected"))
+			{
+				for (unsigned int index = 0; index < timedEngine->getEngines().size(); index++)
+				{
+					Element* engineFrameTimeDiv = Factory::InstanceElement(timingsElement, "div", "div", XMLAttributes());
+					timingsElement->AppendChild(engineFrameTimeDiv);
 					stream.str("");
 					stream.clear();
-					stream << "Frame Time: " << debugEngine->getFrameTime();
-					frameTimeDiv->AppendChild(getDocument()->CreateTextNode(stream.str().c_str()));
+					stream << "Engine[" << index << "] " << timedEngine->getEngineFrameTimes()[index];
+					engineFrameTimeDiv->AppendChild(headerUi->getDocument()->CreateTextNode(stream.str().c_str()));
+				}
 
-					for (unsigned int index = 0; index < debugEngine->getEngines().size(); index++)
-					{
-						Element* engineFrameTimeDiv = Factory::InstanceElement(divs[0], "div", "div", XMLAttributes());
-						divs[0]->AppendChild(engineFrameTimeDiv);
-						stream.str("");
-						stream.clear();
-						stream << "Engine[" << index << "] Frame Time: " << debugEngine->getEngineFrameTimes()[index];
-						engineFrameTimeDiv->AppendChild(getDocument()->CreateTextNode(stream.str().c_str()));
-					}*/
+				Element* frameTimeDiv = Factory::InstanceElement(timingsElement, "div", "div", XMLAttributes());
+				timingsElement->AppendChild(frameTimeDiv);
+				stream.str("");
+				stream.clear();
+				stream << "Total: " << timedEngine->getFrameTime();
+				frameTimeDiv->AppendChild(headerUi->getDocument()->CreateTextNode(stream.str().c_str()));
+			}
 		}
 
 		void HeaderController::onAddEntity(Entity& entity)
 		{
 			headerUi = entity.getComponent<RocketDocument>();
+
+			headerUi->getDocument()->GetElementById("fps")->AddEventListener("click", this);
+		}
+
+		void HeaderController::ProcessEvent(Rocket::Core::Event& event)
+		{
+			Element* targetElement = event.GetTargetElement();
+			if (targetElement->GetId() == "fps")
+			{
+				if (targetElement->IsClassSet("selected"))
+				{
+					targetElement->SetClass("selected", false);
+				}
+				else
+				{
+					targetElement->SetClass("selected", true);
+				}
+			}
 		}
 	}
 }

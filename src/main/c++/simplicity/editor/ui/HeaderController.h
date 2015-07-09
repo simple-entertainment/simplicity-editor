@@ -25,7 +25,7 @@ namespace simplicity
 {
 	namespace editor
 	{
-		class SIMPLE_API HeaderController : public Script
+		class SIMPLE_API HeaderController : public Script, Rocket::Core::EventListener
 		{
 			public:
 				HeaderController();
@@ -33,6 +33,8 @@ namespace simplicity
 				void execute(Entity& entity) override;
 
 				void onAddEntity(Entity& entity) override;
+
+				void ProcessEvent(Rocket::Core::Event& event);
 
 			private:
 				rocket::RocketDocument* headerUi;

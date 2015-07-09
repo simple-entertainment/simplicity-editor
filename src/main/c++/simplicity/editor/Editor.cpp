@@ -58,8 +58,8 @@ namespace simplicity
 			void editOneFrame()
 			{
 				Simplicity::getEngine<WindowEngine>()->advance();
-				scriptEngineEditMode->advance();
 				Simplicity::getEngine<RenderingEngine>()->advance();
+				scriptEngineEditMode->advance();
 			}
 
 			void enterEditMode()
@@ -131,22 +131,21 @@ namespace simplicity
 				unique_ptr<CompositeEngine> compositeEngine(new TimedSerialCompositeEngine);
 				Simplicity::setCompositeEngine(move(compositeEngine));
 
+				uiEngine = unique_ptr<Engine>(new RocketEngine(move(renderer), Category::UNCATEGORIZED));
 				scriptEngine = unique_ptr<Engine>(new ScriptingEngine);
 				scriptEngineEditMode = unique_ptr<Engine>(new ScriptingEngine);
-				uiEngine = unique_ptr<Engine>(new RocketEngine(move(renderer), Category::UNCATEGORIZED));
 
+				uiEngine->onPlay();
 				scriptEngine->onPlay();
 				scriptEngineEditMode->onPlay();
-				uiEngine->onPlay();
 
-				scriptEngine->onResumeScene(*Simplicity::getScene());
 				uiEngine->onResumeScene(*Simplicity::getScene());
+				scriptEngine->onResumeScene(*Simplicity::getScene());
 
-				Resource* headerResource = Resources::get("src/main/rml/header.rml", Category::UNCATEGORIZED);
+				Resource* headerResource = Resources::get("src/main/rml/header.rml");
 				unique_ptr<Component> headerUi(new RocketDocument(*headerResource));
 				uiEntity->addUniqueComponent(move(headerUi));
-				Resource* consoleFontResource = Resources::get("src/main/resources/fonts/Ubuntu-Regular.ttf",
-															   Category::UNCATEGORIZED);
+				Resource* consoleFontResource = Resources::get("src/main/resources/fonts/Ubuntu-Regular.ttf");
 
 				unique_ptr<Component> headerFont(new RocketFontFace(*consoleFontResource));
 				uiEntity->addUniqueComponent(move(headerFont));
@@ -154,8 +153,8 @@ namespace simplicity
 				unique_ptr<Component> headerController(new HeaderController);
 				uiEntity->addUniqueComponent(move(headerController));
 
-				scriptEngine->onAddEntity(*uiEntity);
-				uiEngine->onAddEntity(*uiEntity);
+				//uiEngine->onAddEntity(*uiEntity);
+				//scriptEngine->onAddEntity(*uiEntity);
 
 				unique_ptr<Component> godCameraCamera(new Camera);
 				godCamera->addUniqueComponent(move(godCameraCamera));
@@ -163,8 +162,8 @@ namespace simplicity
 				unique_ptr<Component> godCameraController(new GodCameraController);
 				godCamera->addUniqueComponent(move(godCameraController));
 
-				scriptEngineEditMode->onAddEntity(*godCamera);
 				uiEngine->onAddEntity(*godCamera);
+				scriptEngineEditMode->onAddEntity(*godCamera);
 
 				Messages::registerRecipient(Subject::KEYBOARD_BUTTON, onKeyboardButton);
 			}
