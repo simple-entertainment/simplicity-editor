@@ -20,4 +20,4 @@ target_include_directories(simplicity-editor PUBLIC src/main/c++)
 
 # Simplicity
 target_link_libraries(simplicity-editor simplicity)
-target_link_libraries(simplicity-editor simplicity-rocket)
+target_link_libraries(simplicity-editor simplicity-cef)

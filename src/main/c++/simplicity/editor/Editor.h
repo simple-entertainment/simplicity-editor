@@ -18,7 +18,6 @@
 #define EDITOR_H_
 
 #include <simplicity/common/Defines.h>
-#include <simplicity/rendering/Renderer.h>
 
 namespace simplicity
 {
@@ -28,7 +27,7 @@ namespace simplicity
 		{
 			SIMPLE_API void run();
 
-			SIMPLE_API void setup(std::unique_ptr<Renderer> renderer);
+			SIMPLE_API void setup();
 		}
 	}
 }

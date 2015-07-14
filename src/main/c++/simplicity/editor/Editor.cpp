@@ -15,6 +15,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include <simplicity/input/KeyboardButtonEvent.h>
+#include <simplicity/messaging/Messages.h>
 #include <simplicity/messaging/Subject.h>
 #include <simplicity/rendering/Camera.h>
 #include <simplicity/rendering/RenderingEngine.h>
@@ -23,16 +24,14 @@
 #include <simplicity/Simplicity.h>
 #include <simplicity/windowing/WindowEngine.h>
 
-#include <simplicity/rocket/ui/RocketDocument.h>
-#include <simplicity/rocket/ui/RocketEngine.h>
-#include <simplicity/rocket/ui/RocketFontFace.h>
+#include <simplicity/cef/main/CEFBrowser.h>
+#include <simplicity/cef/main/CEFEngine.h>
 
 #include "Editor.h"
 #include "engine/TimedSerialCompositeEngine.h"
-#include "ui/HeaderController.h"
 #include "GodCameraController.h"
 
-using namespace simplicity::rocket;
+using namespace simplicity::simcef;
 using namespace std;
 
 namespace simplicity
@@ -52,8 +51,7 @@ namespace simplicity
 			unique_ptr<Entity> godCamera(new Entity);
 			unique_ptr<Engine> scriptEngine = nullptr;
 			unique_ptr<Engine> scriptEngineEditMode = nullptr;
-			unique_ptr<Engine> uiEngine = nullptr;
-			unique_ptr<Entity> uiEntity(new Entity);
+			unique_ptr<CEFEngine> uiEngine = nullptr;
 
 			void editOneFrame()
 			{
@@ -102,6 +100,23 @@ namespace simplicity
 
 			void run()
 			{
+				unique_ptr<Entity> uiEntity = uiEngine->createUIEntity(*Resources::get("src/main/html/ui.html"));
+				//unique_ptr<Component> uiController(new UIController);
+				//uiEntity->addUniqueComponent(move(uiController));
+
+				uiEngine->onAddEntity(*uiEntity);
+				scriptEngine->onAddEntity(*uiEntity);
+				Simplicity::getScene()->addEntity(move(uiEntity));
+
+				unique_ptr<Component> godCameraCamera(new Camera);
+				godCamera->addUniqueComponent(move(godCameraCamera));
+
+				unique_ptr<Component> godCameraController(new GodCameraController);
+				godCamera->addUniqueComponent(move(godCameraController));
+
+				uiEngine->onAddEntity(*godCamera);
+				scriptEngineEditMode->onAddEntity(*godCamera);
+
 				// Play one frame so the initial scene displays correctly.
 				Simplicity::startPlayback();
 				Simplicity::playOneFrame();
@@ -126,12 +141,12 @@ namespace simplicity
 				Simplicity::finishPlayback();
 			}
 
-			void setup(unique_ptr<Renderer> renderer)
+			void setup()
 			{
 				unique_ptr<CompositeEngine> compositeEngine(new TimedSerialCompositeEngine);
 				Simplicity::setCompositeEngine(move(compositeEngine));
 
-				uiEngine = unique_ptr<Engine>(new RocketEngine(move(renderer), Category::UNCATEGORIZED));
+				uiEngine = unique_ptr<CEFEngine>(new CEFEngine);
 				scriptEngine = unique_ptr<Engine>(new ScriptingEngine);
 				scriptEngineEditMode = unique_ptr<Engine>(new ScriptingEngine);
 
@@ -141,29 +156,6 @@ namespace simplicity
 
 				uiEngine->onResumeScene(*Simplicity::getScene());
 				scriptEngine->onResumeScene(*Simplicity::getScene());
-
-				Resource* headerResource = Resources::get("src/main/rml/header.rml");
-				unique_ptr<Component> headerUi(new RocketDocument(*headerResource));
-				uiEntity->addUniqueComponent(move(headerUi));
-				Resource* consoleFontResource = Resources::get("src/main/resources/fonts/Ubuntu-Regular.ttf");
-
-				unique_ptr<Component> headerFont(new RocketFontFace(*consoleFontResource));
-				uiEntity->addUniqueComponent(move(headerFont));
-
-				unique_ptr<Component> headerController(new HeaderController);
-				uiEntity->addUniqueComponent(move(headerController));
-
-				//uiEngine->onAddEntity(*uiEntity);
-				//scriptEngine->onAddEntity(*uiEntity);
-
-				unique_ptr<Component> godCameraCamera(new Camera);
-				godCamera->addUniqueComponent(move(godCameraCamera));
-
-				unique_ptr<Component> godCameraController(new GodCameraController);
-				godCamera->addUniqueComponent(move(godCameraController));
-
-				uiEngine->onAddEntity(*godCamera);
-				scriptEngineEditMode->onAddEntity(*godCamera);
 
 				Messages::registerRecipient(Subject::KEYBOARD_BUTTON, onKeyboardButton);
 			}
