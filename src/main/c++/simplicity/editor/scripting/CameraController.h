@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License along with The Simplicity Engine. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-#ifndef GODCAMERACONTROLLER_H_
-#define GODCAMERACONTROLLER_H_
+#ifndef CAMERACONTROLLER_H_
+#define CAMERACONTROLLER_H_
 
 #include <map>
 
@@ -28,10 +28,10 @@ namespace simplicity
 {
 	namespace editor
 	{
-		class SIMPLE_API GodCameraController : public Script
+		class SIMPLE_API CameraController : public Script
 		{
 			public:
-				GodCameraController();
+				CameraController();
 
 				void execute(Entity& entity) override;
 
@@ -65,4 +65,4 @@ namespace simplicity
 	}
 }
 
-#endif /* GODCAMERACONTROLLER_H_ */
+#endif /* CAMERACONTROLLER_H_ */

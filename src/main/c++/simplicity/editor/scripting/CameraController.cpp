@@ -24,7 +24,7 @@
 #include <simplicity/messaging/Subject.h>
 #include <simplicity/Simplicity.h>
 
-#include "GodCameraController.h"
+#include "CameraController.h"
 
 using namespace std;
 
@@ -32,7 +32,7 @@ namespace simplicity
 {
 	namespace editor
 	{
-		GodCameraController::GodCameraController() :
+		CameraController::CameraController() :
 				buttonStates(),
 				mouseCurrentX(-1),
 				mouseCurrentY(-1),
@@ -44,7 +44,7 @@ namespace simplicity
 		{
 		}
 
-		void GodCameraController::execute(Entity& entity)
+		void CameraController::execute(Entity& entity)
 		{
 			// Reset rotation.
 			Vector3 position = getPosition3(entity.getTransform());
@@ -113,7 +113,7 @@ namespace simplicity
 			mouseCurrentY = mouseNewY;
 		}
 
-		bool GodCameraController::onKeyboardButton(const Message& message)
+		bool CameraController::onKeyboardButton(const Message& message)
 		{
 			const KeyboardButtonEvent* event = static_cast<const KeyboardButtonEvent*>(message.body);
 			buttonStates[event->button] = event->buttonState;
@@ -121,7 +121,7 @@ namespace simplicity
 			return false;
 		}
 
-		bool GodCameraController::onMouseButton(const Message& message)
+		bool CameraController::onMouseButton(const Message& message)
 		{
 			const MouseButtonEvent* event = static_cast<const MouseButtonEvent*>(message.body);
 			if (event->button == Mouse::Button::LEFT)
@@ -139,7 +139,7 @@ namespace simplicity
 			return false;
 		}
 
-		bool GodCameraController::onMouseMove(const Message& message)
+		bool CameraController::onMouseMove(const Message& message)
 		{
 			const MouseMoveEvent* event = static_cast<const MouseMoveEvent*>(message.body);
 
@@ -149,7 +149,7 @@ namespace simplicity
 			return false;
 		}
 
-		void GodCameraController::onResumeScene(Scene& scene, Entity& entity)
+		void CameraController::onResumeScene(Scene& scene, Entity& entity)
 		{
 			buttonStates[Keyboard::Button::LEFT_SHIFT] = Button::State::UP;
 			buttonStates[Keyboard::Button::W] = Button::State::UP;
@@ -160,21 +160,21 @@ namespace simplicity
 			buttonStates[Keyboard::Button::C] = Button::State::UP;
 			buttonStates[Keyboard::Button::SPACE] = Button::State::UP;
 
-			Messages::registerRecipient(Subject::KEYBOARD_BUTTON, bind(&GodCameraController::onKeyboardButton, this,
+			Messages::registerRecipient(Subject::KEYBOARD_BUTTON, bind(&CameraController::onKeyboardButton, this,
 																	   placeholders::_1));
-			Messages::registerRecipient(Subject::MOUSE_BUTTON, bind(&GodCameraController::onMouseButton, this,
+			Messages::registerRecipient(Subject::MOUSE_BUTTON, bind(&CameraController::onMouseButton, this,
 																	placeholders::_1));
-			Messages::registerRecipient(Subject::MOUSE_MOVE, bind(&GodCameraController::onMouseMove, this,
+			Messages::registerRecipient(Subject::MOUSE_MOVE, bind(&CameraController::onMouseMove, this,
 																  placeholders::_1));
 		}
 
-		void GodCameraController::onPauseScene(Scene& scene, Entity& entity)
+		void CameraController::onPauseScene(Scene& scene, Entity& entity)
 		{
-			Messages::deregisterRecipient(Subject::KEYBOARD_BUTTON, bind(&GodCameraController::onKeyboardButton, this,
+			Messages::deregisterRecipient(Subject::KEYBOARD_BUTTON, bind(&CameraController::onKeyboardButton, this,
 																		 placeholders::_1));
-			Messages::deregisterRecipient(Subject::MOUSE_BUTTON, bind(&GodCameraController::onMouseButton, this,
+			Messages::deregisterRecipient(Subject::MOUSE_BUTTON, bind(&CameraController::onMouseButton, this,
 																	  placeholders::_1));
-			Messages::deregisterRecipient(Subject::MOUSE_MOVE, bind(&GodCameraController::onMouseMove, this,
+			Messages::deregisterRecipient(Subject::MOUSE_MOVE, bind(&CameraController::onMouseMove, this,
 																	placeholders::_1));
 		}
 	}

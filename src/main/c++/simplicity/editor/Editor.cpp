@@ -29,7 +29,8 @@
 
 #include "Editor.h"
 #include "engine/TimedSerialCompositeEngine.h"
-#include "GodCameraController.h"
+#include "scripting/CameraController.h"
+#include "scripting/UIController.h"
 
 using namespace simplicity::simcef;
 using namespace std;
@@ -101,8 +102,8 @@ namespace simplicity
 			void run()
 			{
 				unique_ptr<Entity> uiEntity = uiEngine->createUIEntity(*Resources::get("src/main/html/ui.html"));
-				//unique_ptr<Component> uiController(new UIController);
-				//uiEntity->addUniqueComponent(move(uiController));
+				unique_ptr<Component> uiController(new UIController);
+				uiEntity->addUniqueComponent(move(uiController));
 
 				uiEngine->onAddEntity(*uiEntity);
 				scriptEngine->onAddEntity(*uiEntity);
@@ -111,7 +112,7 @@ namespace simplicity
 				unique_ptr<Component> godCameraCamera(new Camera);
 				godCamera->addUniqueComponent(move(godCameraCamera));
 
-				unique_ptr<Component> godCameraController(new GodCameraController);
+				unique_ptr<Component> godCameraController(new CameraController);
 				godCamera->addUniqueComponent(move(godCameraController));
 
 				uiEngine->onAddEntity(*godCamera);
