@@ -14,22 +14,36 @@
  * You should have received a copy of the GNU General Public License along with The Simplicity Engine. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-#ifndef EDITOR_H_
-#define EDITOR_H_
+#ifndef CONTAINER_H_
+#define CONTAINER_H_
 
-#include <simplicity/common/Defines.h>
+#include "EditContext.h"
+#include "GlobalContext.h"
+#include "PlayContext.h"
 
 namespace simplicity
 {
 	namespace editor
 	{
-		namespace Editor
+		class Container
 		{
-			SIMPLE_API void run();
+			public:
+				Container(const std::string& editorHome);
 
-			SIMPLE_API void setup();
-		}
+				void run();
+
+			private:
+				EditContext editContext;
+
+				GlobalContext globalContext;
+
+				PlayContext playContext;
+
+				bool onKeyboardButton(const Message& message);
+
+				void switchContext();
+		};
 	}
 }
 
-#endif /* EDITOR_H_ */
+#endif /* CONTAINER_H_ */
