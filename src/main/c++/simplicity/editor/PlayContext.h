@@ -20,14 +20,16 @@ namespace simplicity
 	{
 		class PlayContext : public Context
 		{
-		public:
-			~PlayContext();
+			public:
+				void advance();
 
-			void advance();
+				void dispose();
 
-			void enter();
+				void enter();
 
-			void exit();
+				void exit();
+
+				void init();
 		};
 	}
 }

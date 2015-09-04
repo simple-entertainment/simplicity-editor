@@ -10,14 +10,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/lib)
 
-add_subdirectory(lib/simplicity-cef)
+set(SIMPLE_LINK_TYPE SHARED)
 add_subdirectory(lib/simplicity)
+add_subdirectory(lib/simplicity-cef)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build)
 
 # Source
 #########################
-file(GLOB_RECURSE SRC_FILES src/main/c++/*.cpp src/main/c++/*.h)
+file(GLOB_RECURSE SRC_FILES lib/pugixml/src/*.cpp src/main/c++/*.cpp)
 
 # Target
 #########################
@@ -34,13 +35,10 @@ target_link_libraries(simplicity-editor simplicity)
 # Dynamic Loading
 target_link_libraries(simplicity-editor dl)
 
+# pugixml
+target_include_directories(simplicity-editor PUBLIC lib/pugixml/src)
+
 # Target Resources
 #########################
 add_custom_command(TARGET simplicity-editor PRE_BUILD
-				   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/assets ${PROJECT_SOURCE_DIR}/build/assets
-				   COMMENT "simplicity::editor || Copying assets")
-add_custom_command(TARGET simplicity-editor PRE_BUILD
-				   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/src/main/css ${PROJECT_SOURCE_DIR}/build/src/main/css
-				   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/src/main/html ${PROJECT_SOURCE_DIR}/build/src/main/html
-				   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/src/main/js ${PROJECT_SOURCE_DIR}/build/src/main/js
-				   COMMENT "simplicity::editor || Copying source")
+				   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/assets ${PROJECT_SOURCE_DIR}/build/assets)

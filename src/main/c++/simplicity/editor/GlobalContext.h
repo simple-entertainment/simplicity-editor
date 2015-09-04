@@ -28,18 +28,18 @@ namespace simplicity
 			public:
 				GlobalContext(const std::string& editorHome);
 
-				~GlobalContext();
-
 				void advance();
+
+				void dispose();
 
 				void enter();
 
 				void exit();
 
+				void init();
+
 			private:
 				SerialCompositeEngine compositeEngine;
-
-				bool initialized;
 
 				FileSystemDataStore uiDataStore;
 

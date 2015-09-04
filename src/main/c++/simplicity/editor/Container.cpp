@@ -50,6 +50,10 @@ namespace simplicity
 			Messages::registerRecipient(Subject::KEYBOARD_BUTTON, bind(&Container::onKeyboardButton, this,
 																	   placeholders::_1));
 
+			globalContext.init();
+			editContext.init();
+			playContext.init();
+
 			// Play one frame so the initial scene displays correctly.
 			globalContext.enter();
 			playContext.enter();
@@ -70,6 +74,10 @@ namespace simplicity
 					editContext.advance();
 				}
 			}
+
+			playContext.dispose();
+			editContext.dispose();
+			globalContext.dispose();
 		}
 
 		void Container::switchContext()

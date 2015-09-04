@@ -26,7 +26,7 @@ function advance()
 	}
 
 	var background = new Image(8, 8);
-	background.src = "../../../assets/diagonal.png";
+	background.src = "../images/diagonal.png";
 
 	var context = canvas.get(0).getContext("2d");
 	context.clearRect(0, 0, canvas.width(), canvas.height());
@@ -62,12 +62,6 @@ function advance()
 	drawFrameTimes(canvas, context, frameTimes.get("engine2"));
 	context.strokeStyle = "#e08";
 	drawFrameTimes(canvas, context, frameTimes.get("engine3"));
-	context.strokeStyle = "#08e";
-	drawFrameTimes(canvas, context, frameTimes.get("engine4"));
-	context.strokeStyle = "#0e8";
-	drawFrameTimes(canvas, context, frameTimes.get("engine5"));
-	context.strokeStyle = "#e80";
-	drawFrameTimes(canvas, context, frameTimes.get("engine6"));
 
     window.requestAnimationFrame(advance);
 }

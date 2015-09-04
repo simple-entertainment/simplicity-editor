@@ -27,18 +27,12 @@ namespace simplicity
 		EditContext::EditContext() :
 				compositeEngine(),
 				editCameraEntity(new Entity),
-				gameCameraEntity(nullptr),
-				initialized(false)
+				gameCameraEntity(nullptr)
 		{
 			unique_ptr<Engine> scriptingEngine(new ScriptingEngine);
 			compositeEngine.addEngine(move(scriptingEngine));
 
 			compositeEngine.onPlay();
-		}
-
-		EditContext::~EditContext()
-		{
-			compositeEngine.onStop();
 		}
 
 		void EditContext::advance()
@@ -49,21 +43,14 @@ namespace simplicity
 			compositeEngine.advance();
 		}
 
+		void EditContext::dispose()
+		{
+			compositeEngine.onStop();
+		}
+
 		void EditContext::enter()
 		{
 			compositeEngine.onResumeScene(*Simplicity::getScene());
-
-			if (!initialized)
-			{
-				unique_ptr<Component> editCamera(new Camera);
-				editCameraEntity->addUniqueComponent(move(editCamera));
-				unique_ptr<Component> editCameraController(new CameraController);
-				editCameraEntity->addUniqueComponent(move(editCameraController));
-
-				compositeEngine.onAddEntity(*editCameraEntity);
-
-				initialized = true;
-			}
 
 			gameCameraEntity = Simplicity::getEngine<RenderingEngine>()->getCamera();
 			Camera* gameCamera= gameCameraEntity->getComponent<Camera>();
@@ -81,6 +68,16 @@ namespace simplicity
 			compositeEngine.onPauseScene(*Simplicity::getScene());
 
 			Simplicity::getEngine<RenderingEngine>()->setCamera(gameCameraEntity);
+		}
+
+		void EditContext::init()
+		{
+			unique_ptr<Component> editCamera(new Camera);
+			editCameraEntity->addUniqueComponent(move(editCamera));
+			unique_ptr<Component> editCameraController(new CameraController);
+			editCameraEntity->addUniqueComponent(move(editCameraController));
+
+			compositeEngine.onAddEntity(*editCameraEntity);
 		}
 	}
 }

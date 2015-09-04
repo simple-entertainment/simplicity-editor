@@ -17,15 +17,15 @@ namespace simplicity
 {
 	namespace editor
 	{
-		PlayContext::~PlayContext()
-		{
-			Simplicity::stop();
-			Simplicity::finishPlayback();
-		}
-
 		void PlayContext::advance()
 		{
 			Simplicity::playOneFrame();
+		}
+
+		void PlayContext::dispose()
+		{
+			Simplicity::stop();
+			Simplicity::finishPlayback();
 		}
 
 		void PlayContext::enter()
@@ -37,6 +37,10 @@ namespace simplicity
 		{
 			Simplicity::pause();
 			Simplicity::finishPlayback();
+		}
+
+		void PlayContext::init()
+		{
 		}
 	}
 }

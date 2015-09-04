@@ -26,13 +26,15 @@ namespace simplicity
 			public:
 				EditContext();
 
-				~EditContext();
-
 				void advance();
+
+				void dispose();
 
 				void enter();
 
 				void exit();
+
+				void init();
 
 			private:
 				SerialCompositeEngine compositeEngine;
@@ -40,8 +42,6 @@ namespace simplicity
 				std::unique_ptr<Entity> editCameraEntity;
 
 				Entity* gameCameraEntity;
-
-				bool initialized;
 		};
 	}
 }

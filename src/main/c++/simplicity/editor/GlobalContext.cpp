@@ -24,8 +24,7 @@ namespace simplicity
 	{
 		GlobalContext::GlobalContext(const string& editorHome) :
 				compositeEngine(),
-				initialized(false),
-				uiDataStore(editorHome),
+				uiDataStore(Resource::Type::ASSET, editorHome + "/assets"),
 				uiEngine(nullptr),
 				uiEntity(nullptr)
 		{
@@ -39,38 +38,35 @@ namespace simplicity
 			compositeEngine.onPlay();
 		}
 
-		GlobalContext::~GlobalContext()
-		{
-			compositeEngine.onStop();
-		}
-
 		void GlobalContext::advance()
 		{
 			compositeEngine.advance();
 		}
 
+		void GlobalContext::dispose()
+		{
+			compositeEngine.onStop();
+		}
+
 		void GlobalContext::enter()
 		{
 			compositeEngine.onResumeScene(*Simplicity::getScene());
-
-			if (!initialized)
-			{
-				uiEntity = uiEngine->createUIEntity(*uiDataStore.get("src/main/html/ui.html", Category::UNCATEGORIZED,
-																	 false));
-				Entity* uiEntityRaw = uiEntity.get();
-
-				unique_ptr<Component> uiController(new UIController);
-				uiEntity->addUniqueComponent(move(uiController));
-				Simplicity::getScene()->addEntity(move(uiEntity)); // TODO Is there another way to get this rendered?
-				compositeEngine.onAddEntity(*uiEntityRaw);
-
-				initialized = true;
-			}
 		}
 
 		void GlobalContext::exit()
 		{
 			compositeEngine.onPauseScene(*Simplicity::getScene());
+		}
+
+		void GlobalContext::init()
+		{
+			uiEntity = uiEngine->createUIEntity(*uiDataStore.get("html/ui.html", false));
+			Entity* uiEntityRaw = uiEntity.get();
+
+			unique_ptr<Component> uiController(new UIController);
+			uiEntity->addUniqueComponent(move(uiController));
+			Simplicity::getScene()->addEntity(move(uiEntity)); // TODO Is there another way to get this rendered?
+			compositeEngine.onAddEntity(*uiEntityRaw);
 		}
 	}
 }
