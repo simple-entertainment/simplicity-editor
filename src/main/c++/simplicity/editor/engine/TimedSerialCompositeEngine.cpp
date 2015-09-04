@@ -64,11 +64,7 @@ namespace simplicity
 			lastFrameCountTime = frameEndTime;
 			framesPerSecond = frameCount;
 			frameCount = 0;
-
-			//Logs::log(Category::DEBUG_LOG, "FPS: %i", framesPerSecond);
 		}
-
-		//Logs::log(Category::DEBUG_LOG, "%f\t%f\t%f", frameTime, engineFrameTimes[0], engineFrameTimes[1]);
 	}
 
 	const vector<float>& TimedSerialCompositeEngine::getEngineFrameTimes() const
@@ -93,49 +89,49 @@ namespace simplicity
 
 	void TimedSerialCompositeEngine::onAddEntity(Entity& entity)
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onAddEntity(entity);
+			engine->onAddEntity(entity);
 		}
 	}
 
 	void TimedSerialCompositeEngine::onCloseScene(Scene& scene)
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onCloseScene(scene);
+			engine->onCloseScene(scene);
 		}
 	}
 
 	void TimedSerialCompositeEngine::onOpenScene(Scene& scene)
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onOpenScene(scene);
+			engine->onOpenScene(scene);
 		}
 	}
 
 	void TimedSerialCompositeEngine::onPause()
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onPause();
+			engine->onPause();
 		}
 	}
 
 	void TimedSerialCompositeEngine::onPauseScene(Scene& scene)
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onPauseScene(scene);
+			engine->onPauseScene(scene);
 		}
 	}
 
 	void TimedSerialCompositeEngine::onPlay()
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onPlay();
+			engine->onPlay();
 		}
 
 		lastFrameCountTime = high_resolution_clock::now();
@@ -143,33 +139,33 @@ namespace simplicity
 
 	void TimedSerialCompositeEngine::onRemoveEntity(Entity& entity)
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onRemoveEntity(entity);
+			engine->onRemoveEntity(entity);
 		}
 	}
 
 	void TimedSerialCompositeEngine::onResume()
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onResume();
+			engine->onResume();
 		}
 	}
 
 	void TimedSerialCompositeEngine::onResumeScene(Scene& scene)
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onResumeScene(scene);
+			engine->onResumeScene(scene);
 		}
 	}
 
 	void TimedSerialCompositeEngine::onStop()
 	{
-		for (unsigned int index = 0; index < engines.size(); index++)
+		for (unique_ptr<Engine>& engine : engines)
 		{
-			engines[index]->onStop();
+			engine->onStop();
 		}
 	}
 

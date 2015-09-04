@@ -1,3 +1,6 @@
+[submodule "lib/rapidjson"]
+	path = lib/rapidjson
+	url = git@github.com:miloyip/rapidjson.git
 [submodule "simplicity"]
 	path = lib/simplicity
 	url = git@github.com:simple-entertainment/simplicity.git

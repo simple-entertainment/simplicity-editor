@@ -16,6 +16,7 @@
 #include <simplicity/resources/Resources.h>
 #include <simplicity/Simplicity.h>
 
+#include "engine/EngineConfig.h"
 #include "engine/TimedSerialCompositeEngine.h"
 #include "Container.h"
 #include "Directories.h"
@@ -29,14 +30,16 @@ int main()
 	unique_ptr<CompositeEngine> compositeEngine(new TimedSerialCompositeEngine);
 	Simplicity::setCompositeEngine(move(compositeEngine));
 
-	string projectHome = "/home/simplegsb/Software/bobs-island/build";
+	string projectHome = "/home/simplegsb/Software/bobs-island";
 	string editorHome = Directories::getHere();
 
 	Container container(editorHome);
 
-	Directories::setHere(projectHome);
+	Directories::setHere(projectHome + "/build");
 
-	Logs::info("simplicity::editor", "Loading project code...");
+	EngineConfig::compile(projectHome);
+
+	Logs::info("simplicity::editor", "Loading project...");
 
 	char* error = nullptr;
 
@@ -44,31 +47,40 @@ int main()
 	error = dlerror();
 	if (error != nullptr)
 	{
-		Logs::error("simplicity::editor", "Failed to load project code with error '%s'", error);
+		Logs::error("simplicity::editor", "Failed to load project with error '%s'", error);
 		return 1;
 	}
 
 	Logs::info("simplicity::editor", "Setting up engine...");
 
-	function<void()> setupEngine = (void(*)()) dlsym(game, "setupEngine");
+	function<void()> simplicity_generated_setupEngine = (void(*)()) dlsym(game, "simplicity_generated_setupEngine");
 	error = dlerror();
 	if (error != nullptr)
 	{
 		Logs::error("simplicity::editor", "Failed to setup engine with error '%s'", error);
 		return 2;
 	}
-	setupEngine();
+	simplicity_generated_setupEngine();
+
+	function<void()> simplicity_setupEngine = (void(*)()) dlsym(game, "simplicity_setupEngine");
+	error = dlerror();
+	if (error != nullptr)
+	{
+		Logs::error("simplicity::editor", "Failed to setup engine with error '%s'", error);
+		return 2;
+	}
+	simplicity_setupEngine();
 
 	Logs::info("simplicity::editor", "Setting up scene...");
 
-	function<void()> setupScene = (void(*)()) dlsym(game, "setupScene");
+	function<void()> simplicity_setupScene = (void(*)()) dlsym(game, "simplicity_setupScene");
 	error = dlerror();
 	if (error != nullptr)
 	{
 		Logs::error("simplicity::editor", "Failed to setup scene with error '%s'", error);
 		return 2;
 	}
-	setupScene();
+	simplicity_setupScene();
 
 	Logs::info("simplicity::editor", "Running project in container...");
 

@@ -12,4 +12,17 @@
 #ifndef SIMPLICITY_EDITOR_ENGINECONFIG_H
 #define SIMPLICITY_EDITOR_ENGINECONFIG_H
 
+#include <string>
+
+namespace simplicity
+{
+	namespace editor
+	{
+		namespace EngineConfig
+		{
+			void compile(const std::string& projectHome);
+		}
+	}
+}
+
 #endif //SIMPLICITY_EDITOR_ENGINECONFIG_H

@@ -18,7 +18,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build)
 
 # Source
 #########################
-file(GLOB_RECURSE SRC_FILES lib/pugixml/src/*.cpp src/main/c++/*.cpp)
+file(GLOB_RECURSE SRC_FILES src/main/c++/*.cpp)
 
 # Target
 #########################
@@ -35,8 +35,8 @@ target_link_libraries(simplicity-editor simplicity)
 # Dynamic Loading
 target_link_libraries(simplicity-editor dl)
 
-# pugixml
-target_include_directories(simplicity-editor PUBLIC lib/pugixml/src)
+# RapidJSON
+target_include_directories(simplicity-editor PUBLIC lib/rapidjson/include)
 
 # Target Resources
 #########################
