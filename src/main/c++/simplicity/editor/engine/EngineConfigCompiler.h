@@ -64,6 +64,8 @@ namespace simplicity
 
 				std::vector<std::string> compiledEngines;
 
+				std::vector<std::string> compiledFactories;
+
 				std::set<std::string> compiledIncludes;
 
 				std::string compiledInitFunction;

@@ -23,6 +23,7 @@ namespace simplicity
 		EngineConfigCompiler::EngineConfigCompiler() :
 				compiledConstructor(),
 				compiledEngines(),
+				compiledFactories(),
 				compiledIncludes(),
 				compiledInitFunction(),
 				compiledPropertyAssignments(),
@@ -108,7 +109,11 @@ namespace simplicity
 		{
 			objects.pop();
 
-			if (objects.size() > 0 && objects.top() == "engines")
+			if (objects.size() == 0)
+			{
+				index = 0;
+			}
+			else if (objects.top() == "engines")
 			{
 				stringstream stream;
 				stream << compiledComment << endl;
@@ -124,10 +129,26 @@ namespace simplicity
 				stream << "\tsim::Simplicity::addEngine(std::move(engine" << index << "));";
 
 				compiledEngines.push_back(stream.str());
+
 				compiledComment = "";
 				compiledConstructor = "";
 				compiledInitFunction = "";
 				compiledPropertyAssignments.clear();
+
+				index++;
+			}
+			else if (objects.top() == "factories")
+			{
+				stringstream stream;
+				stream << compiledComment << endl;
+				stream << compiledConstructor << endl;
+				stream << compiledInitFunction;
+
+				compiledFactories.push_back(stream.str());
+
+				compiledComment = "";
+				compiledConstructor = "";
+				compiledInitFunction = "";
 
 				index++;
 			}
@@ -216,6 +237,17 @@ namespace simplicity
 				stream << "\t// " << str;
 				compiledComment = stream.str();
 			}
+			else if (key == "type")
+			{
+				stringstream stream;
+				stream << "\tstd::unique_ptr<sim::" << str << "> factory" << index << "(new " << objects.top() << ");";
+				compiledConstructor = stream.str();
+
+				stream.str("");
+				stream.clear();
+				stream << "\tsim::" << str << "::setInstance(std::move(factory" << index << "));";
+				compiledInitFunction = stream.str();
+			}
 
 			return true;
 		}
@@ -254,6 +286,11 @@ namespace simplicity
 					stream << endl;
 				}
 				stream << compiledEngines[index] << endl;
+			}
+			for (string compiledFactory : compiledFactories)
+			{
+				stream << endl;
+				stream << compiledFactory << endl;
 			}
 			stream << "}" << endl;
 
