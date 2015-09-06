@@ -13,7 +13,6 @@
 
 #include "EngineConfigCompiler.h"
 
-using namespace rapidjson;
 using namespace std;
 
 namespace simplicity
@@ -21,108 +20,62 @@ namespace simplicity
 	namespace editor
 	{
 		EngineConfigCompiler::EngineConfigCompiler() :
+				compiledComment(),
 				compiledConstructor(),
 				compiledEngines(),
 				compiledFactories(),
 				compiledIncludes(),
 				compiledInitFunction(),
-				compiledPropertyAssignments(),
-				index(0),
-				key(),
-				numbers(),
-				objects()
+				compiledProperties(),
+				interface(),
+				type()
 		{
 			compiledIncludes.insert("#include <simplicity/API.h>");
 		}
 
-		bool EngineConfigCompiler::Bool(bool b)
+		void EngineConfigCompiler::compileBoolean(unsigned int index, const string& parent, const string& name,
+												  bool value)
 		{
-			return true;
 		}
 
-		string EngineConfigCompiler::commaSeparatedListFromNumbers()
+		void EngineConfigCompiler::compileBooleanArray(unsigned int index, const string& parent, const string& name,
+													   const vector<bool>& value)
 		{
-			stringstream stream;
-			for (float number : numbers)
-			{
-				stringstream numberStream;
-				numberStream << number;
-				if (numberStream.str().find('.') == string::npos)
-				{
-					numberStream << ".0";
-				}
+		}
 
-				stream << numberStream.str() << "f, ";
+		void EngineConfigCompiler::compileNumber(unsigned int index, const string& parent, const string& name,
+												 float value)
+		{
+		}
+
+		void EngineConfigCompiler::compileNumberArray(unsigned int index, const string& parent, const string& name,
+													  const vector<float>& value)
+		{
+			if (parent == "properties")
+			{
+				stringstream stream;
+				stream << "\tengine" << index << "->" << compileSetter(name, compileMathObject(value)) << ";";
+				compiledProperties.push_back(stream.str());
+			}
+		}
+
+		void EngineConfigCompiler::compileObject(unsigned int index, const string& parent, const std::string& name)
+		{
+			if (!name.empty())
+			{
+				return;
 			}
 
-			string commaSeparatedList = stream.str();
-			commaSeparatedList = commaSeparatedList.substr(0, commaSeparatedList.length() - 2);
-
-			return commaSeparatedList;
-		}
-
-		bool EngineConfigCompiler::Double(double d)
-		{
-			numbers.push_back(static_cast<float>(d));
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::EndArray(SizeType elementCount)
-		{
-			if (objects.top() == "properties")
-			{
-				string className = "";
-				if (numbers.size() == 3)
-				{
-					className = "sim::Vector3";
-				}
-				else if (numbers.size() == 4)
-				{
-					className = "sim::Vector4";
-				}
-				else if (numbers.size() == 9)
-				{
-					className = "sim::Matrix33";
-				}
-				else if (numbers.size() == 16)
-				{
-					className = "sim::Matrix44";
-				}
-
-				if (className != "")
-				{
-					stringstream stream;
-					stream << "\tengine" << index << "->" << setterFromKey() << "(" << className << "(";
-					stream << commaSeparatedListFromNumbers();
-					stream << "));";
-					compiledPropertyAssignments.push_back(stream.str());
-				}
-			}
-
-			numbers.clear();
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::EndObject(SizeType memberCount)
-		{
-			objects.pop();
-
-			if (objects.size() == 0)
-			{
-				index = 0;
-			}
-			else if (objects.top() == "engines")
+			if (parent == "engines")
 			{
 				stringstream stream;
 				stream << compiledComment << endl;
 				stream << compiledConstructor << endl;
-				for (string compiledPropertyAssignment : compiledPropertyAssignments)
+				for (string compiledProperty : compiledProperties)
 				{
-					stream << compiledPropertyAssignment << endl;
+					stream << compiledProperty << endl;
 				}
-				if (compiledInitFunction != "")
+				if (!compiledInitFunction.empty())
 				{
 					stream << compiledInitFunction << endl;
 				}
@@ -133,11 +86,9 @@ namespace simplicity
 				compiledComment = "";
 				compiledConstructor = "";
 				compiledInitFunction = "";
-				compiledPropertyAssignments.clear();
-
-				index++;
+				compiledProperties.clear();
 			}
-			else if (objects.top() == "factories")
+			else if (parent == "factories")
 			{
 				stringstream stream;
 				stream << compiledComment << endl;
@@ -149,121 +100,82 @@ namespace simplicity
 				compiledComment = "";
 				compiledConstructor = "";
 				compiledInitFunction = "";
+				interface= "";
+				type= "";
+			}
+		}
 
-				index++;
+		void EngineConfigCompiler::compileString(unsigned int index, const string& parent, const string& name,
+												 const string& value)
+		{
+			if (parent == "engines")
+			{
+				if (name == "type")
+				{
+					stringstream stream;
+					stream << "\tstd::unique_ptr<" << value << "> engine" << index << "(new " << value << ");";
+					compiledConstructor = stream.str();
+				}
+			}
+			else if (parent == "factories")
+			{
+				if (name == "interface")
+				{
+					interface = value;
+				}
+				else if (name == "type")
+				{
+					type = value;
+				}
+
+				if (!interface.empty() && !type.empty())
+				{
+					stringstream stream;
+					stream << "\tstd::unique_ptr<sim::" << interface << "> factory" << index << "(new " << type << ");";
+					compiledConstructor = stream.str();
+
+					stream.str("");
+					stream.clear();
+					stream << "\tsim::" << interface << "::setInstance(std::move(factory" << index << "));";
+					compiledInitFunction = stream.str();
+				}
 			}
 
-			return true;
-		}
-
-		bool EngineConfigCompiler::Int(int i)
-		{
-			numbers.push_back(i);
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::Int64(int64_t i)
-		{
-			numbers.push_back(i);
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::Key(const char* str, SizeType length, bool copy)
-		{
-			key = str;
-
-			if (objects.top() == "engines")
+			if (parent == "engines" || parent == "factories")
+			{
+				if (name == "header")
+				{
+					compiledIncludes.insert("#include <" + value + ">");
+				}
+				else if (name == "initFunction")
+				{
+					stringstream stream;
+					stream << "\tengine" << index << "->" << value << "();";
+					compiledInitFunction = stream.str();
+				}
+				else if (name == "name")
+				{
+					compiledComment = "\t// " + value;
+				}
+			}
+			else if (parent == "properties")
 			{
 				stringstream stream;
-				stream << "\tstd::unique_ptr<" << str << "> engine" << index << "(new " << str << ");";
-				compiledConstructor = stream.str();
+				stream << "\tengine" << index << "->" << compileSetter(name, "\"" + value + "\"") << ";";
+				compiledProperties.push_back(stream.str());
 			}
-
-			return true;
 		}
 
-		bool EngineConfigCompiler::Null()
+		void EngineConfigCompiler::compileStringArray(unsigned int index, const string& parent, const string& name,
+													  const vector<string>& value)
 		{
-			return true;
-		}
-
-		std::string EngineConfigCompiler::setterFromKey()
-		{
-			string capitalKey = key;
-			capitalKey[0] = static_cast<char>(toupper(capitalKey[0]));
-			return string("set") + capitalKey;
-		}
-
-		bool EngineConfigCompiler::StartArray()
-		{
-			numbers.clear();
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::StartObject()
-		{
-			objects.push(key);
-			key = "";
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::String(const char* str, SizeType length, bool copy)
-		{
-			if (objects.top() == "properties")
+			if (name == "headers")
 			{
-				stringstream stream;
-				stream << "\tengine" << index << "->" << setterFromKey() << "(\"" << str << "\");";
-				compiledPropertyAssignments.push_back(stream.str());
+				for (string header : value)
+				{
+					compiledIncludes.insert("#include <" + header + ">");
+				}
 			}
-			else if (key == "header" || key == "headers")
-			{
-				stringstream stream;
-				stream << "#include <" << str << ">";
-				compiledIncludes.insert(stream.str());
-			}
-			else if (key == "initFunction")
-			{
-				stringstream stream;
-				stream << "\tengine" << index << "->" << str << "();";
-				compiledInitFunction = stream.str();
-			}
-			else if (key == "name")
-			{
-				stringstream stream;
-				stream << "\t// " << str;
-				compiledComment = stream.str();
-			}
-			else if (key == "type")
-			{
-				stringstream stream;
-				stream << "\tstd::unique_ptr<sim::" << str << "> factory" << index << "(new " << objects.top() << ");";
-				compiledConstructor = stream.str();
-
-				stream.str("");
-				stream.clear();
-				stream << "\tsim::" << str << "::setInstance(std::move(factory" << index << "));";
-				compiledInitFunction = stream.str();
-			}
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::Uint(unsigned int u)
-		{
-			numbers.push_back(u);
-
-			return true;
-		}
-
-		bool EngineConfigCompiler::Uint64(uint64_t u)
-		{
-			numbers.push_back(u);
-
-			return true;
 		}
 
 		void EngineConfigCompiler::write(Resource& destination)

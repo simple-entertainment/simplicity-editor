@@ -14,8 +14,8 @@
 #include <simplicity/resources/FileSystemDataStore.h>
 
 #include "../common/JSONInputStream.h"
-#include "EngineConfig.h"
-#include "EngineConfigCompiler.h"
+#include "EntityConfig.h"
+#include "EntityConfigCompiler.h"
 
 using namespace rapidjson;
 using namespace std;
@@ -24,18 +24,18 @@ namespace simplicity
 {
 	namespace editor
 	{
-		namespace EngineConfig
+		namespace EntityConfig
 		{
 			void compile(const std::string& projectHome)
 			{
 				FileSystemDataStore projectDataStore(Resource::Type::USER, projectHome);
 
 				unique_ptr<istream> istream =
-						projectDataStore.get("simplicity.json", false)->getInputStream();
+						projectDataStore.get("scene.json", false)->getInputStream();
 				JSONInputStream inputStream(*istream);
-				EngineConfigCompiler compiler;
+				EntityConfigCompiler compiler;
 				Reader().Parse(inputStream, compiler);
-				compiler.write(*projectDataStore.get("src/generated/simplicity-generated-engine.cpp", false));
+				compiler.write(*projectDataStore.get("src/generated/simplicity-generated-scene.cpp", false));
 			}
 		}
 	}

@@ -18,6 +18,7 @@
 
 #include "engine/EngineConfig.h"
 #include "engine/TimedSerialCompositeEngine.h"
+#include "entity/EntityConfig.h"
 #include "Container.h"
 #include "Directories.h"
 
@@ -38,6 +39,7 @@ int main()
 	Directories::setHere(projectHome + "/build");
 
 	EngineConfig::compile(projectHome);
+	EntityConfig::compile(projectHome);
 
 	Logs::info("simplicity::editor", "Loading project...");
 
@@ -72,6 +74,15 @@ int main()
 	simplicity_setupEngine();
 
 	Logs::info("simplicity::editor", "Setting up scene...");
+
+	function<void()> simplicity_generated_setupScene = (void(*)()) dlsym(game, "simplicity_generated_setupScene");
+	error = dlerror();
+	if (error != nullptr)
+	{
+		Logs::error("simplicity::editor", "Failed to setup scene with error '%s'", error);
+		return 2;
+	}
+	simplicity_generated_setupScene();
 
 	function<void()> simplicity_setupScene = (void(*)()) dlsym(game, "simplicity_setupScene");
 	error = dlerror();

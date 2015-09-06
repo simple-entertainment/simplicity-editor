@@ -9,8 +9,8 @@
  *
  * This file is part of simplicity. See the LICENSE file for the full license governing this code.
  */
-#ifndef SIMPLICITY_EDITOR_ENGINECONFIGCOMPILER_H
-#define SIMPLICITY_EDITOR_ENGINECONFIGCOMPILER_H
+#ifndef SIMPLICITY_EDITOR_ENTITYCONFIGCOMPILER_H
+#define SIMPLICITY_EDITOR_ENTITYCONFIGCOMPILER_H
 
 #include <set>
 
@@ -22,45 +22,61 @@ namespace simplicity
 {
 	namespace editor
 	{
-		class EngineConfigCompiler : public ConfigCompiler
+		class EntityConfigCompiler : public ConfigCompiler
 		{
 			public:
-				EngineConfigCompiler();
+				EntityConfigCompiler();
 
 				void write(Resource& destination);
 
 			private:
 				std::string compiledComment;
 
-				std::string compiledConstructor;
+				std::string compiledComponentComment;
 
-				std::vector<std::string> compiledEngines;
+				std::string compiledComponentPosition;
 
-				std::vector<std::string> compiledFactories;
+				std::vector<std::string> compiledComponentProperties;
+
+				std::string compiledComponentRotation;
+
+				std::vector<std::string> compiledComponents;
+
+				std::vector<std::string> compiledEntities;
 
 				std::set<std::string> compiledIncludes;
 
-				std::string compiledInitFunction;
+				std::string compiledPosition;
 
-				std::vector<std::string> compiledProperties;
+				std::string compiledRotation;
 
-				std::string interface;
+				unsigned int componentCount;
 
-				std::string type;
+				std::string componentType;
+
+				std::set<std::string> modelRecipeComponentTypes;
 
 				void compileBoolean(unsigned int index, const std::string& parent, const std::string& name,
-										bool value) override;
+									bool value) override;
 
 				void compileBooleanArray(unsigned int index, const std::string& parent, const std::string& name,
-											 const std::vector<bool>& value) override;
+										 const std::vector<bool>& value) override;
+
+				std::string compileComponentConstructor(unsigned int index);
 
 				void compileNumber(unsigned int index, const std::string& parent, const std::string& name,
-									   float value) override;
+								   float value) override;
 
 				void compileNumberArray(unsigned int index, const std::string& parent, const std::string& name,
-											const std::vector<float>& value) override;
+										const std::vector<float>& value) override;
 
 				void compileObject(unsigned int index, const std::string& parent, const std::string& name) override;
+
+				std::string compilePosition(const std::string& object, const std::vector<float>& value);
+
+				void compileProperty(unsigned int index, const std::string& name, const std::string& compiledValue);
+
+				std::string compileRotation(const std::string& object, const std::vector<float>& value);
 
 				void compileString(unsigned int index, const std::string& parent, const std::string& name,
 								   const std::string& value) override;
@@ -71,4 +87,4 @@ namespace simplicity
 	}
 }
 
-#endif /* SIMPLICITY_EDITOR_ENGINECONFIGCOMPILER_H */
+#endif /* SIMPLICITY_EDITOR_ENTITYCONFIGCOMPILER_H */
