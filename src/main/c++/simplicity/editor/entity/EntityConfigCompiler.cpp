@@ -117,7 +117,7 @@ namespace simplicity
 			else
 			{
 				stream << "\tstd::unique_ptr<" << componentType << "> component" << componentCount + index <<
-						"(new " << componentType << ");" << endl;
+						"(new " << componentType << ");";
 			}
 
 			if (modelRecipeComponentType)
@@ -287,6 +287,13 @@ namespace simplicity
 					stringstream stream;
 					stream << "\trecipe" << componentCount + index << ".dimensions[3] = " <<
 					compiledValue << "; // depth";
+					compiledComponentProperties.push_back(stream.str());
+				}
+				else if (name == "diameter")
+				{
+					stringstream stream;
+					stream << "\trecipe" << componentCount + index << ".dimensions[0] = " <<
+					compiledValue << "; // diameter";
 					compiledComponentProperties.push_back(stream.str());
 				}
 				else if (name == "height")

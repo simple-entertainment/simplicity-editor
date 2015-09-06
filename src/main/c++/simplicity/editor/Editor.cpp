@@ -45,7 +45,7 @@ int main()
 
 	char* error = nullptr;
 
-	void* game = dlopen("lib/libbobs-island-module.so", RTLD_NOW);
+	void* game = dlopen("libbobs-island-module.so", RTLD_NOW);
 	error = dlerror();
 	if (error != nullptr)
 	{
