@@ -28,7 +28,7 @@ namespace simplicity
 		class Container
 		{
 			public:
-				Container(const std::string& editorHome);
+				Container();
 
 				void run();
 

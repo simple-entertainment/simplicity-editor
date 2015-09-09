@@ -23,7 +23,6 @@ file(GLOB_RECURSE SRC_FILES src/main/c++/*.cpp)
 # Target
 #########################
 add_executable(simplicity-editor ${SRC_FILES})
-set_target_properties(simplicity-editor PROPERTIES SKIP_BUILD_RPATH TRUE)
 target_include_directories(simplicity-editor PRIVATE src/main/c++)
 
 # Target Dependencies

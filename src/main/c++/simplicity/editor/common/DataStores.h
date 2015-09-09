@@ -9,22 +9,24 @@
  *
  * This file is part of simplicity. See the LICENSE file for the full license governing this code.
  */
-#ifndef SIMPLICITY_EDITOR_DIRECTORIES_H
-#define SIMPLICITY_EDITOR_DIRECTORIES_H
+#ifndef SIMPLICITY_EDITOR_DATASTORES_H
+#define SIMPLICITY_EDITOR_DATASTORES_H
 
-#include <string>
+#include <simplicity/resources/DataStore.h>
 
 namespace simplicity
 {
 	namespace editor
 	{
-		namespace Directories
+		namespace DataStores
 		{
-			std::string getHere();
+			DataStore* getEditorHome();
 
-			void setHere(const std::string& here);
+			DataStore* getProjectHome();
+
+			void init(const std::string& projectBuildLocation);
 		}
 	}
 }
 
-#endif //SIMPLICITY_EDITOR_DIRECTORIES_H
+#endif //SIMPLICITY_EDITOR_DATASTORES_H

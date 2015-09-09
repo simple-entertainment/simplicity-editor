@@ -9,18 +9,19 @@
  *
  * This file is part of simplicity. See the LICENSE file for the full license governing this code.
  */
-#include <dlfcn.h>
+#include <unistd.h>
 
 #include <simplicity/logging/Logs.h>
 #include <simplicity/resources/FileSystemDataStore.h>
 #include <simplicity/resources/Resources.h>
 #include <simplicity/Simplicity.h>
 
+#include "common/DataStores.h"
+#include "common/DynamicLibrary.h"
 #include "engine/EngineConfig.h"
 #include "engine/TimedSerialCompositeEngine.h"
 #include "entity/EntityConfig.h"
 #include "Container.h"
-#include "Directories.h"
 
 using namespace simplicity;
 using namespace simplicity::editor;
@@ -31,73 +32,28 @@ int main()
 	unique_ptr<CompositeEngine> compositeEngine(new TimedSerialCompositeEngine);
 	Simplicity::setCompositeEngine(move(compositeEngine));
 
-	string projectHome = "/home/simplegsb/Software/bobs-island";
-	string editorHome = Directories::getHere();
+	Container container;
 
-	Container container(editorHome);
+	string projectLocation = "/home/simplegsb/Software/bobs-island";
+	DataStores::init(projectLocation);
+	chdir((projectLocation + "/build").c_str());
 
-	Directories::setHere(projectHome + "/build");
-
-	EngineConfig::compile(projectHome);
-	EntityConfig::compile(projectHome);
+	EngineConfig::compile(projectLocation);
+	EntityConfig::compile(projectLocation);
 
 	Logs::info("simplicity::editor", "Loading project...");
-
-	char* error = nullptr;
-
-	void* game = dlopen("libbobs-island-module.so", RTLD_NOW);
-	error = dlerror();
-	if (error != nullptr)
-	{
-		Logs::error("simplicity::editor", "Failed to load project with error '%s'", error);
-		return 1;
-	}
+	DynamicLibrary project(*DataStores::getProjectHome()->get("build/lib/libbobs-island-module.so"));
 
 	Logs::info("simplicity::editor", "Setting up engine...");
-
-	function<void()> simplicity_generated_setupEngine = (void(*)()) dlsym(game, "simplicity_generated_setupEngine");
-	error = dlerror();
-	if (error != nullptr)
-	{
-		Logs::error("simplicity::editor", "Failed to setup engine with error '%s'", error);
-		return 2;
-	}
-	simplicity_generated_setupEngine();
-
-	function<void()> simplicity_setupEngine = (void(*)()) dlsym(game, "simplicity_setupEngine");
-	error = dlerror();
-	if (error != nullptr)
-	{
-		Logs::error("simplicity::editor", "Failed to setup engine with error '%s'", error);
-		return 2;
-	}
-	simplicity_setupEngine();
+	project.callFunction("simplicity_generated_setupEngine");
+	project.callFunction("simplicity_setupEngine");
 
 	Logs::info("simplicity::editor", "Setting up scene...");
-
-	function<void()> simplicity_generated_setupScene = (void(*)()) dlsym(game, "simplicity_generated_setupScene");
-	error = dlerror();
-	if (error != nullptr)
-	{
-		Logs::error("simplicity::editor", "Failed to setup scene with error '%s'", error);
-		return 2;
-	}
-	simplicity_generated_setupScene();
-
-	function<void()> simplicity_setupScene = (void(*)()) dlsym(game, "simplicity_setupScene");
-	error = dlerror();
-	if (error != nullptr)
-	{
-		Logs::error("simplicity::editor", "Failed to setup scene with error '%s'", error);
-		return 2;
-	}
-	simplicity_setupScene();
+	project.callFunction("simplicity_generated_setupScene");
+	project.callFunction("simplicity_setupScene");
 
 	Logs::info("simplicity::editor", "Running project in container...");
-
 	container.run();
-
-	dlclose(game);
 
 	return 0;
 }

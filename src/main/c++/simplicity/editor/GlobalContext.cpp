@@ -12,6 +12,7 @@
 #include <simplicity/scripting/ScriptingEngine.h>
 #include <simplicity/Simplicity.h>
 
+#include "common/DataStores.h"
 #include "GlobalContext.h"
 #include "scripting/UIController.h"
 
@@ -22,9 +23,8 @@ namespace simplicity
 {
 	namespace editor
 	{
-		GlobalContext::GlobalContext(const string& editorHome) :
+		GlobalContext::GlobalContext() :
 				compositeEngine(),
-				uiDataStore(Resource::Type::ASSET, editorHome + "/assets"),
 				uiEngine(nullptr),
 				uiEntity(nullptr)
 		{
@@ -60,7 +60,7 @@ namespace simplicity
 
 		void GlobalContext::init()
 		{
-			uiEntity = uiEngine->createUIEntity(*uiDataStore.get("html/ui.html", false));
+			uiEntity = uiEngine->createUIEntity(*DataStores::getEditorHome()->get("assets/html/ui.html", false));
 			Entity* uiEntityRaw = uiEntity.get();
 
 			unique_ptr<Component> uiController(new UIController);

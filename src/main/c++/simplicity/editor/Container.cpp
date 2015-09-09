@@ -27,9 +27,9 @@ namespace simplicity
 {
 	namespace editor
 	{
-		Container::Container(const string& editorHome) :
+		Container::Container() :
 				editContext(),
-				globalContext(editorHome),
+				globalContext(),
 				playContext()
 		{
 		}

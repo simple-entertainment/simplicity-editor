@@ -9,31 +9,36 @@
  *
  * This file is part of simplicity. See the LICENSE file for the full license governing this code.
  */
-#include <unistd.h>
+#ifndef SIMPLICITY_EDITOR_DYNAMICLIBRARY_H
+#define SIMPLICITY_EDITOR_DYNAMICLIBRARY_H
 
-#include "Directories.h"
-
-using namespace std;
+#include <simplicity/resources/Resource.h>
 
 namespace simplicity
 {
 	namespace editor
 	{
-		namespace Directories
+		class DynamicLibrary
 		{
-			string getHere()
-			{
-				char* cwd = getcwd(nullptr, 0);
-				string here = cwd;
-				delete[] cwd;
+			public:
+				DynamicLibrary(const Resource& library);
 
-				return here;
-			}
+				~DynamicLibrary();
 
-			void setHere(const string& here)
-			{
-				chdir(here.c_str());
-			}
-		}
+				bool callFunction(const std::string& name);
+
+				bool reload();
+
+			private:
+				void* handle;
+
+				const Resource& library;
+
+				bool load();
+
+				void unload();
+		};
 	}
 }
+
+#endif /* SIMPLICITY_EDITOR_DYNAMICLIBRARY_H */

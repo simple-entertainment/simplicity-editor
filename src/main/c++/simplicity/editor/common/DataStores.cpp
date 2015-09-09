@@ -9,43 +9,36 @@
  *
  * This file is part of simplicity. See the LICENSE file for the full license governing this code.
  */
-#ifndef SIMPLICITY_EDITOR_GLOBALCONTEXT_H
-#define SIMPLICITY_EDITOR_GLOBALCONTEXT_H
-
-#include <simplicity/engine/SerialCompositeEngine.h>
 #include <simplicity/resources/FileSystemDataStore.h>
 
-#include <simplicity/cef/main/CEFEngine.h>
+#include "DataStores.h"
 
-#include "Context.h"
+using namespace std;
 
 namespace simplicity
 {
 	namespace editor
 	{
-		class GlobalContext : public Context
+		namespace DataStores
 		{
-			public:
-				GlobalContext();
+			unique_ptr<DataStore> editorHome;
+			unique_ptr<DataStore> projectHome;
 
-				void advance();
+			DataStore* getEditorHome()
+			{
+				return editorHome.get();
+			}
 
-				void dispose();
+			DataStore* getProjectHome()
+			{
+				return projectHome.get();
+			}
 
-				void enter();
-
-				void exit();
-
-				void init();
-
-			private:
-				SerialCompositeEngine compositeEngine;
-
-				simcef::CEFEngine* uiEngine;
-
-				std::unique_ptr<Entity> uiEntity;
-		};
+			void init(const string& projectLocation)
+			{
+				editorHome = unique_ptr<DataStore>(new FileSystemDataStore(Resource::Type::ASSET, "."));
+				projectHome = unique_ptr<DataStore>(new FileSystemDataStore(Resource::Type::ASSET, projectLocation));
+			}
+		}
 	}
-};
-
-#endif /* SIMPLICITY_EDITOR_GLOBALCONTEXT_H */
+}
