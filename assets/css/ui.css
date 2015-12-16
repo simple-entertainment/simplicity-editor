@@ -5,19 +5,26 @@
 body
 {
 	color: white;
+	display: flex;
+	flex-direction: column;
 	font-family: Ubuntu, sans-serif;
 	margin: 0;
 }
 
+body div
+{
+	width: 100%;
+}
+
 button
 {
-	background: none;
+	background-color: #333;
 	border: solid transparent 0.2em;
 	color: white;
 	font-size: 1em;
 	font-weight: bold;
 	height: 2em;
-	padding: 0em;
+	padding: 0;
 	width: 2em;
 }
 
@@ -42,37 +49,72 @@ div
 	background-color: #333;
 }
 
+h1,
+h2
+{
+	font-weight: bold;
+	margin: 0;
+}
+
+h1
+{
+	font-size: 1.25em;
+}
+
+h2
+{
+	font-size: 1em;
+}
+
 span
 {
 	display: inline-block;
 }
-
-/***************************************************
- * Sections
- **************************************************/
 
 .background
 {
 	z-index: -1;
 }
 
-.bottom
+/***************************************************
+ * Sections
+ **************************************************/
+
+#entities > div
+{
+	padding: 5px;
+}
+
+#middle
+{
+	background-color: transparent;
+	flex-grow: 1;
+	position: relative;
+	width: 100%;
+}
+
+#middle .section
 {
 	bottom: 0;
+	overflow-y: scroll;
 	position: absolute;
-	width: 100%;
+	top: 0;
+	width: 20%;
+}
+
+#middle .left
+{
+	left: 0;
+}
+
+#middle .right
+{
+	right: 0;
 }
 
 .section
 {
 	display: none;
-}
-
-.top
-{
-	top: 0;
-	position: absolute;
-	width: 100%;
 }
 
 /***************************************************
@@ -95,9 +137,11 @@ span
 #toolbar
 {
 	background-color: transparent;
+	height: 2em;
+	text-align: center;
 }
 
-#toolbar > *
+#toolbar *
 {
 	vertical-align: top;
 }
@@ -105,6 +149,18 @@ span
 #toolbar-background
 {
 	height: 2em;
+	position: absolute;
+	width: 100%;
+}
+
+#toolbar :first-child
+{
+	float: left;
+}
+
+#toolbar :last-child
+{
+	float: right;
 }
 
 /***************************************************

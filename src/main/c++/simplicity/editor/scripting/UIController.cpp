@@ -17,6 +17,8 @@
 #include <sstream>
 
 #include <simplicity/Simplicity.h>
+#include <simplicity/math/MathFunctions.h>
+#include <simplicity/rendering/Camera.h>
 
 #include "../engine/TimedSerialCompositeEngine.h"
 #include "UIController.h"
@@ -43,8 +45,59 @@ namespace simplicity
 			TimedSerialCompositeEngine* timedCompositeEngine =
 					static_cast<TimedSerialCompositeEngine*>(Simplicity::getCompositeEngine());
 
+			stringstream setEntities;
+			setEntities << "setEntities([";
+			for (Entity* entity : Simplicity::getScene()->getEntities())
+			{
+				if (setEntities.str() != "setEntities([")
+				{
+					setEntities << ", ";
+				}
+
+				setEntities << "{";
+
+				setEntities << "'name': ";
+				if (entity->getName() == "")
+				{
+					setEntities << "'Entity " << entity->getId() << "', ";
+				}
+				else
+				{
+					setEntities << "'" << entity->getName() << "', ";
+				}
+				setEntities << "'position': " << getPosition3(entity->getTransform()) << ", ";
+
+				setEntities << "'components': [";
+				stringstream components;
+				for (Component* component : entity->getComponents<Component>())
+				{
+					if (components.str() != "")
+					{
+						components << ", ";
+					}
+
+					if (dynamic_cast<Camera*>(component) != nullptr)
+					{
+						components << "'Camera'";
+					}
+					if (dynamic_cast<Model*>(component) != nullptr)
+					{
+						components << "'Model'";
+					}
+					if (dynamic_cast<Script*>(component) != nullptr)
+					{
+						components << "'Script'";
+					}
+				}
+				setEntities << components.str() << "]";
+
+				setEntities << "}";
+			}
+			setEntities << "]);";
+			browser->executeJavaScript(setEntities.str());
+
 			stringstream setFps;
-			setFps << "$('#fps').text(" << timedCompositeEngine->getFramesPerSecond() << ");";
+			setFps << "setFps(" << timedCompositeEngine->getFramesPerSecond() << ");";
 			browser->executeJavaScript(setFps.str());
 
 			stringstream setFrameTimes;

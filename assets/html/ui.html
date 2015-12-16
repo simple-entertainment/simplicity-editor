@@ -6,17 +6,33 @@
 		<script type="text/javascript" src="../js/ui.js"></script>
 	</head>
 	<body>
-		<div id="toolbar" class="section top">
-			<div id="toolbar-background" class="background top"></div>
-			<img id="logo" src="../images/simplicity-logo.png"
-			/><span id="fps">00</span
-			><button id="showTimers" type="button" onclick="toggle('timers');"><img src="../images/timers.png" /></button
-			><button id="showTerminal" type="button">&gt;_</button>
+		<div id="toolbar-background" class="background section"></div>
+		<div id="toolbar" class="section">
+			<span>
+				<img id="logo" src="../images/simplicity-logo.png"
+				/><span id="fps" class="large">00</span
+				><button id="showTimers" onclick="toggle('timers');"><img src="../images/timers.png" /></button
+				><button id="showTerminal">&gt;_</button>
+			</span>
 
-			<button id="play" type="button">&gt;</button>
+			<span>
+				<button id="play">&gt;</button>
+			</span>
+
+			<span>
+				<button id="showEntities" onclick="toggle('entities');"><img src="../images/entities.png" /></button
+				><button id="showScenes" onclick="toggle('scenes');"><img src="../images/scenes.png" /></button
+				><button id="showEngines" onclick="toggle('engines');"><img src="../images/engines.png" /></button>
+			</span>
 		</div>
 
-		<div id="timers" class="section bottom">
+		<div id="middle">
+			<div id="entities" class="section right"></div>
+			<div id="scenes" class="section right"></div>
+			<div id="engines" class="section right"></div>
+		</div>
+
+		<div id="timers" class="section">
 			<canvas id="timerGraph" height="100"></canvas>
 		</div>
 	</body>

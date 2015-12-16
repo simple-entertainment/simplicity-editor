@@ -117,6 +117,47 @@ function toggle(sectionId)
 	}
 }
 
+function setEntities(entities)
+{
+	var entitiesElement = $("#entities");
+	entitiesElement.empty();
+
+	for (var entityIndex = 0; entityIndex < entities.length; entityIndex++)
+	{
+		var entity = entities[entityIndex];
+		entitiesElement.append(
+			"<div>" +
+				"<h1>" + entity.name + "</h1>" +
+				"<div>Position " + entity.position + "</div>");
+
+		for (var componentIndex = 0; componentIndex < entity.components.length; componentIndex++)
+		{
+			entitiesElement.append("<h2>" + entity.components[componentIndex] + "</h2>");
+		}
+
+		entitiesElement.append("</div>");
+	}
+}
+
+function setFps(fps)
+{
+	var fpsElement = $("#fps");
+	fpsElement.text(fps);
+
+	if (fps >= 60)
+	{
+		fpsElement.css("color", "#0e8");
+	}
+	else if (fps >= 30)
+	{
+		fpsElement.css("color", "#08e");
+	}
+	else
+	{
+		fpsElement.css("color", "#e80");
+	}
+}
+
 function setFrameTime(name, time)
 {
     if (exactFrameTimes.get(name) === undefined)
