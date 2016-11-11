@@ -34,7 +34,7 @@ int main()
 
 	Container container;
 
-	string projectLocation = "/home/simplegsb/Software/bobs-island";
+	string projectLocation = "/home/premgyan/Software/bobs-island";
 	DataStores::init(projectLocation);
 	chdir((projectLocation + "/build").c_str());
 

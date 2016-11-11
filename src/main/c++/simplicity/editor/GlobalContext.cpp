@@ -12,6 +12,9 @@
 #include <simplicity/scripting/ScriptingEngine.h>
 #include <simplicity/Simplicity.h>
 
+#include <simplicity/cef/main/CEFEngine.h>
+#include <simplicity/cef/main/CEFFactory.h>
+
 #include "common/DataStores.h"
 #include "GlobalContext.h"
 #include "scripting/UIController.h"
@@ -25,14 +28,12 @@ namespace simplicity
 	{
 		GlobalContext::GlobalContext() :
 				compositeEngine(),
-				uiEngine(nullptr),
 				uiEntity(nullptr)
 		{
 			std::unique_ptr<Engine> scriptingEngine(new ScriptingEngine);
 			compositeEngine.addEngine(move(scriptingEngine));
 
 			std::unique_ptr<CEFEngine> uiEngine(new CEFEngine);
-			this->uiEngine = uiEngine.get();
 			compositeEngine.addEngine(move(uiEngine));
 
 			compositeEngine.onPlay();
@@ -40,7 +41,7 @@ namespace simplicity
 
 		void GlobalContext::advance()
 		{
-			compositeEngine.advance();
+			compositeEngine.advance(*Simplicity::getScene());
 		}
 
 		void GlobalContext::dispose()
@@ -60,13 +61,14 @@ namespace simplicity
 
 		void GlobalContext::init()
 		{
-			uiEntity = uiEngine->createUIEntity(*DataStores::getEditorHome()->get("assets/html/ui.html", false));
-			Entity* uiEntityRaw = uiEntity.get();
+			compositeEngine.onBeforeOpenScene(*Simplicity::getScene());
+			compositeEngine.onOpenScene(*Simplicity::getScene());
+
+			uiEntity = CEFFactory::createUIEntity(*DataStores::getEditorHome()->get("assets/html/ui.html", false));
 
 			unique_ptr<Component> uiController(new UIController);
-			uiEntity->addUniqueComponent(move(uiController));
+			uiEntity->addComponent(move(uiController));
 			Simplicity::getScene()->addEntity(move(uiEntity)); // TODO Is there another way to get this rendered?
-			compositeEngine.onAddEntity(*uiEntityRaw);
 		}
 	}
 }

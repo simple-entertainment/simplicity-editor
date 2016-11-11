@@ -44,15 +44,15 @@ namespace simplicity
 		{
 		}
 
-		void CameraController::execute(Entity& entity)
+		void CameraController::execute()
 		{
 			// Reset rotation.
-			Vector3 position = getPosition3(entity.getTransform());
-			entity.getTransform().setIdentity();
-			setPosition(entity.getTransform(), position);
+			Vector3 position = getPosition3(getEntity()->getTransform());
+			getEntity()->getTransform().setIdentity();
+			setPosition(getEntity()->getTransform(), position);
 
 			// Apply Y axis rotation so that forward is the correct direction.
-			rotate(entity.getTransform(), rotationY, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+			rotate(getEntity()->getTransform(), rotationY, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 
 			float translationDelta = Simplicity::getDeltaTime() * 100.0f;
 			if (buttonStates[Keyboard::Button::LEFT_SHIFT] == Button::State::DOWN)
@@ -62,41 +62,41 @@ namespace simplicity
 
 			if (buttonStates[Keyboard::Button::W] == Button::State::DOWN)
 			{
-				translate(entity.getTransform(), Vector4(0.0f, 0.0f, -translationDelta, 1.0f));
+				translate(getEntity()->getTransform(), Vector4(0.0f, 0.0f, -translationDelta, 1.0f));
 			}
 
 			if (buttonStates[Keyboard::Button::A] == Button::State::DOWN)
 			{
-				translate(entity.getTransform(), Vector4(-translationDelta, 0.0f, 0.0f, 1.0f));
+				translate(getEntity()->getTransform(), Vector4(-translationDelta, 0.0f, 0.0f, 1.0f));
 			}
 
 			if (buttonStates[Keyboard::Button::S] == Button::State::DOWN)
 			{
-				translate(entity.getTransform(), Vector4(0.0f, 0.0f, translationDelta, 1.0f));
+				translate(getEntity()->getTransform(), Vector4(0.0f, 0.0f, translationDelta, 1.0f));
 			}
 
 			if (buttonStates[Keyboard::Button::D] == Button::State::DOWN)
 			{
-				translate(entity.getTransform(), Vector4(translationDelta, 0.0f, 0.0f, 1.0f));
+				translate(getEntity()->getTransform(), Vector4(translationDelta, 0.0f, 0.0f, 1.0f));
 			}
 
 			if (buttonStates[Keyboard::Button::E] == Button::State::DOWN ||
 					buttonStates[Keyboard::Button::SPACE] == Button::State::DOWN)
 			{
-				translate(entity.getTransform(), Vector4(0.0f, translationDelta, 0.0f, 1.0f));
+				translate(getEntity()->getTransform(), Vector4(0.0f, translationDelta, 0.0f, 1.0f));
 			}
 
 			if (buttonStates[Keyboard::Button::C] == Button::State::DOWN)
 			{
-				translate(entity.getTransform(), Vector4(0.0f, -translationDelta, 0.0f, 1.0f));
+				translate(getEntity()->getTransform(), Vector4(0.0f, -translationDelta, 0.0f, 1.0f));
 			}
 
 			if (mouseCurrentX != -1)
 			{
 				// Reset rotation.
-				Vector3 position = getPosition3(entity.getTransform());
-				entity.getTransform().setIdentity();
-				setPosition(entity.getTransform(), position);
+				Vector3 position = getPosition3(getEntity()->getTransform());
+				getEntity()->getTransform().setIdentity();
+				setPosition(getEntity()->getTransform(), position);
 
 				if (rotating)
 				{
@@ -105,8 +105,8 @@ namespace simplicity
 				}
 
 				// Apply new rotation.
-				rotate(entity.getTransform(), rotationY, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-				rotate(entity.getTransform(), rotationX, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+				rotate(getEntity()->getTransform(), rotationY, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+				rotate(getEntity()->getTransform(), rotationX, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
 			}
 
 			mouseCurrentX = mouseNewX;
@@ -149,7 +149,7 @@ namespace simplicity
 			return false;
 		}
 
-		void CameraController::onResumeScene(Scene& scene, Entity& entity)
+		void CameraController::onResumeScene()
 		{
 			buttonStates[Keyboard::Button::LEFT_SHIFT] = Button::State::UP;
 			buttonStates[Keyboard::Button::W] = Button::State::UP;
@@ -168,7 +168,7 @@ namespace simplicity
 																  placeholders::_1));
 		}
 
-		void CameraController::onPauseScene(Scene& scene, Entity& entity)
+		void CameraController::onPauseScene()
 		{
 			Messages::deregisterRecipient(Subject::KEYBOARD_BUTTON, bind(&CameraController::onKeyboardButton, this,
 																		 placeholders::_1));

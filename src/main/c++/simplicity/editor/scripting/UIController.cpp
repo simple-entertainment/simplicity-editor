@@ -18,6 +18,7 @@
 
 #include <simplicity/Simplicity.h>
 #include <simplicity/math/MathFunctions.h>
+#include <simplicity/model/Model.h>
 #include <simplicity/rendering/Camera.h>
 
 #include "../engine/TimedSerialCompositeEngine.h"
@@ -35,7 +36,7 @@ namespace simplicity
 		{
 		}
 
-		void UIController::execute(Entity& entity)
+		void UIController::execute()
 		{
 			if (Simplicity::getState() != Simplicity::State::PLAYING)
 			{
@@ -110,9 +111,9 @@ namespace simplicity
 			browser->executeJavaScript(setFrameTimes.str());
 		}
 
-		void UIController::onAddEntity(Entity& entity)
+		void UIController::onAddEntity()
 		{
-			browser = entity.getComponent<CEFBrowser>();
+			browser = getEntity()->getComponent<CEFBrowser>();
 		}
 	}
 }

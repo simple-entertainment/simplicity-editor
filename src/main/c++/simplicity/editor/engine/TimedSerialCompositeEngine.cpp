@@ -16,7 +16,6 @@
  */
 #include <simplicity/common/AddressEquals.h>
 #include <simplicity/common/Timer.h>
-#include <simplicity/logging/Logs.h>
 
 #include "TimedSerialCompositeEngine.h"
 
@@ -40,7 +39,7 @@ namespace simplicity
 		engines.push_back(move(engine));
 	}
 
-	void TimedSerialCompositeEngine::advance()
+	void TimedSerialCompositeEngine::advance(Scene& scene)
 	{
 		Timer frameTimer;
 
@@ -48,7 +47,7 @@ namespace simplicity
 		{
 			Timer engineFrameTimer;
 
-			engines[index]->advance();
+			engines[index]->advance(scene);
 
 			engineFrameTimes[index] = engineFrameTimer.getElapsedTime();
 		}
@@ -87,11 +86,11 @@ namespace simplicity
 		return frameTime;
 	}
 
-	void TimedSerialCompositeEngine::onAddEntity(Entity& entity)
+	void TimedSerialCompositeEngine::onBeforeOpenScene(Scene& scene)
 	{
 		for (unique_ptr<Engine>& engine : engines)
 		{
-			engine->onAddEntity(entity);
+			engine->onBeforeOpenScene(scene);
 		}
 	}
 
@@ -137,14 +136,6 @@ namespace simplicity
 		lastFrameCountTime = high_resolution_clock::now();
 	}
 
-	void TimedSerialCompositeEngine::onRemoveEntity(Entity& entity)
-	{
-		for (unique_ptr<Engine>& engine : engines)
-		{
-			engine->onRemoveEntity(entity);
-		}
-	}
-
 	void TimedSerialCompositeEngine::onResume()
 	{
 		for (unique_ptr<Engine>& engine : engines)
@@ -169,17 +160,16 @@ namespace simplicity
 		}
 	}
 
-	unique_ptr<Engine> TimedSerialCompositeEngine::removeEngine(Engine* engine)
+	unique_ptr<Engine> TimedSerialCompositeEngine::removeEngine(Engine& engine)
 	{
 		unique_ptr<Engine> removedEngine;
 		vector<unique_ptr<Engine>>::iterator result =
-			find_if(engines.begin(), engines.end(), AddressEquals<Engine>(*engine));
+			find_if(engines.begin(), engines.end(), AddressEquals<Engine>(engine));
 
 		if (result != engines.end())
 		{
 			removedEngine = move(*result);
 			engines.erase(result);
-			engine = nullptr;
 		}
 
 		return move(removedEngine);

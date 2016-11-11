@@ -128,8 +128,9 @@ namespace simplicity
 				}
 				compiledComponentProperties.clear();
 
-				stream << "\tstd::unique_ptr<sim::Component> component" << componentCount + index <<
-						"(sim::ModelFactory::cookMesh(recipe" << componentCount + index << "));";
+				stream << "\tstd::unique_ptr<sim::Model> component" << componentCount + index << "(new sim::Model);" << endl;
+				stream << "\tcomponent" << componentCount + index <<
+						"->setMesh(sim::ModelFactory::cookMesh(recipe" << componentCount + index << "));";
 			}
 
 			return stream.str();
@@ -236,7 +237,7 @@ namespace simplicity
 				{
 					stream << compiledComponentProperty << endl;
 				}
-				stream << "\tentity" << compiledEntities.size() << "->addUniqueComponent(std::move(component" <<
+				stream << "\tentity" << compiledEntities.size() << "->addComponent(std::move(component" <<
 						componentCount + index << "));";
 
 				compiledComponents.push_back(stream.str());

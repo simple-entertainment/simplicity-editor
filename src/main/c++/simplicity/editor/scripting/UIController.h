@@ -30,9 +30,9 @@ namespace simplicity
 			public:
 				UIController();
 
-				void execute(Entity& entity) override;
+				void execute() override;
 
-				void onAddEntity(Entity& entity) override;
+				void onAddEntity() override;
 
 			private:
 				simcef::CEFBrowser* browser;

@@ -15,7 +15,7 @@
 #include <simplicity/engine/SerialCompositeEngine.h>
 #include <simplicity/resources/FileSystemDataStore.h>
 
-#include <simplicity/cef/main/CEFEngine.h>
+#include "engine/TimedSerialCompositeEngine.h"
 
 #include "Context.h"
 
@@ -39,9 +39,7 @@ namespace simplicity
 				void init();
 
 			private:
-				SerialCompositeEngine compositeEngine;
-
-				simcef::CEFEngine* uiEngine;
+				TimedSerialCompositeEngine compositeEngine;
 
 				std::unique_ptr<Entity> uiEntity;
 		};

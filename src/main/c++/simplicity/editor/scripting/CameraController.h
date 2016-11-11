@@ -33,11 +33,11 @@ namespace simplicity
 			public:
 				CameraController();
 
-				void execute(Entity& entity) override;
+				void execute() override;
 
-				void onPauseScene(Scene& scene, Entity& entity) override;
+				void onPauseScene() override;
 
-				void onResumeScene(Scene& scene, Entity& entity) override;
+				void onResumeScene() override;
 
 			private:
 				std::map<Keyboard::Button, Button::State> buttonStates;

@@ -37,10 +37,10 @@ namespace simplicity
 
 		void EditContext::advance()
 		{
-			Simplicity::getEngine<WindowEngine>()->advance();
-			Simplicity::getEngine<RenderingEngine>()->advance();
+			Simplicity::getEngine<WindowEngine>()->advance(*Simplicity::getScene());
+			Simplicity::getEngine<RenderingEngine>()->advance(*Simplicity::getScene());
 
-			compositeEngine.advance();
+			compositeEngine.advance(*Simplicity::getScene());
 		}
 
 		void EditContext::dispose()
@@ -72,12 +72,13 @@ namespace simplicity
 
 		void EditContext::init()
 		{
-			unique_ptr<Component> editCamera(new Camera);
-			editCameraEntity->addUniqueComponent(move(editCamera));
-			unique_ptr<Component> editCameraController(new CameraController);
-			editCameraEntity->addUniqueComponent(move(editCameraController));
+			compositeEngine.onBeforeOpenScene(*Simplicity::getScene());
+			compositeEngine.onOpenScene(*Simplicity::getScene());
 
-			compositeEngine.onAddEntity(*editCameraEntity);
+			unique_ptr<Component> editCamera(new Camera);
+			editCameraEntity->addComponent(move(editCamera));
+			unique_ptr<Component> editCameraController(new CameraController);
+			editCameraEntity->addComponent(move(editCameraController));
 		}
 	}
 }
